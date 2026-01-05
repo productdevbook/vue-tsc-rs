@@ -16,7 +16,7 @@
     "url": "git+https://github.com/productdevbook/vue-tsc-rs.git"
   },
   "license": "MIT",
-  "author": "vue-tsc-rs contributors",
+  "author": "productdevbook",
   "exports": {
     ".": {
       "import": "./index.js",
@@ -38,12 +38,7 @@
   "engines": {
     "node": ">=24"
   },
-  "optionalDependencies": {
-    "@vue-tsc-rs/darwin-arm64": "0.1.0",
-    "@vue-tsc-rs/darwin-x64": "0.1.0",
-    "@vue-tsc-rs/linux-arm64": "0.1.0",
-    "@vue-tsc-rs/linux-x64": "0.1.0",
-    "@vue-tsc-rs/win32-arm64": "0.1.0",
-    "@vue-tsc-rs/win32-x64": "0.1.0"
+  "dependencies": {
+    "tar": "^7.0.0"
   }
 }

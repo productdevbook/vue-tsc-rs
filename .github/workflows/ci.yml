@@ -34,7 +34,7 @@ jobs:
         run: cargo fmt --check
 
   build:
-    name: Build (${{ matrix.target }})
+    name: Build (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -90,70 +90,26 @@ jobs:
         if: "!matrix.cross"
         run: cargo build --release --target ${{ matrix.target }} -p vue-tsc-rs
 
-      - name: Get binary name
-        id: binary
-        shell: bash
+      - name: Create archive (Unix)
+        if: runner.os != 'Windows'
         run: |
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
-            echo "name=vue-tsc-rs.exe" >> $GITHUB_OUTPUT
-          else
-            echo "name=vue-tsc-rs" >> $GITHUB_OUTPUT
-          fi
+          cd target/${{ matrix.target }}/release
+          tar -czvf ../../../vue-tsc-rs-${{ matrix.platform }}.tar.gz vue-tsc-rs
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path vue-tsc-rs.exe -DestinationPath ../../../vue-tsc-rs-${{ matrix.platform }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: vue-tsc-rs-${{ matrix.platform }}
-          path: target/${{ matrix.target }}/release/${{ steps.binary.outputs.name }}
-
-  npm-publish:
-    name: Publish to npm
-    needs: [test, build]
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-          registry-url: "https://registry.npmjs.org"
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Display artifacts
-        run: ls -R artifacts
-
-      - name: Build npm packages
-        working-directory: npm
-        run: node scripts/build-npm.js --all --artifacts ../artifacts
-
-      - name: Publish platform packages
-        working-directory: npm/dist
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          for dir in darwin-arm64 darwin-x64 linux-arm64 linux-x64 win32-arm64 win32-x64; do
-            if [ -d "$dir" ]; then
-              echo "Publishing @vue-tsc-rs/$dir"
-              cd "$dir"
-              npm publish --access public || true
-              cd ..
-            fi
-          done
-
-      - name: Publish main package
-        working-directory: npm/dist/vue-tsc-rs
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
+          path: vue-tsc-rs-${{ matrix.platform }}.*
 
   release:
-    name: Create Release
+    name: Release
     needs: [test, build]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
@@ -166,22 +122,33 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+          merge-multiple: true
 
-      - name: Create release archives
-        run: |
-          mkdir -p release
-          for dir in artifacts/vue-tsc-rs-*; do
-            platform=$(basename "$dir" | sed 's/vue-tsc-rs-//')
-            echo "Creating archive for $platform"
-            if [[ "$platform" == win32-* ]]; then
-              (cd "$dir" && zip -r "../../release/vue-tsc-rs-$platform.zip" .)
-            else
-              (cd "$dir" && tar -czvf "../../release/vue-tsc-rs-$platform.tar.gz" .)
-            fi
-          done
+      - name: Display artifacts
+        run: ls -la artifacts/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: release/*
+          files: artifacts/*
           generate_release_notes: true
+
+  npm-publish:
+    name: Publish to npm
+    needs: [release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Publish to npm
+        working-directory: npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
