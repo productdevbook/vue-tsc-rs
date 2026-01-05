@@ -99,7 +99,9 @@ impl OutputFormatter {
                 // Underline
                 let underline_start = (diagnostic.span.start as usize).saturating_sub(indent);
                 let underline_len = (diagnostic.span.end - diagnostic.span.start) as usize;
-                let underline_len = underline_len.max(1).min(trimmed.len().saturating_sub(underline_start));
+                let underline_len = underline_len
+                    .max(1)
+                    .min(trimmed.len().saturating_sub(underline_start));
 
                 if underline_len > 0 && underline_start < trimmed.len() {
                     println!(
@@ -159,8 +161,7 @@ impl OutputFormatter {
         // Error message
         println!(
             "  {GRAY}╰─{RESET} {color}{icon} {label}{RESET}: {} {GRAY}[TS{}]{RESET}",
-            diagnostic.message,
-            diagnostic.code
+            diagnostic.message, diagnostic.code
         );
     }
 

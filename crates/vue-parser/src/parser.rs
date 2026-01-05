@@ -121,7 +121,12 @@ impl<'a> SfcParser<'a> {
         if !is_self_closing {
             self.lexer.skip_whitespace();
             let close_tag = format!("</{}", tag_name);
-            if self.lexer.remaining().to_lowercase().starts_with(&close_tag) {
+            if self
+                .lexer
+                .remaining()
+                .to_lowercase()
+                .starts_with(&close_tag)
+            {
                 self.lexer.consume(&format!("</{}", tag_name));
                 // Also try with original case
                 if !self.lexer.remaining().starts_with(">") {
@@ -145,7 +150,8 @@ impl<'a> SfcParser<'a> {
         match tag_name.as_str() {
             "template" => {
                 if sfc.template.is_some() {
-                    self.errors.push(ParseError::duplicate_block("template", span));
+                    self.errors
+                        .push(ParseError::duplicate_block("template", span));
                 } else {
                     let lang = get_attr_value(&attrs, "lang").map(String::from);
                     let functional = has_attr(&attrs, "functional");
@@ -180,7 +186,8 @@ impl<'a> SfcParser<'a> {
                         });
                     }
                 } else if sfc.script.is_some() {
-                    self.errors.push(ParseError::duplicate_block("script", span));
+                    self.errors
+                        .push(ParseError::duplicate_block("script", span));
                 } else {
                     sfc.script = Some(ScriptBlock { block, lang, src });
                 }
@@ -227,10 +234,7 @@ impl<'a> SfcParser<'a> {
             self.lexer.skip_whitespace();
 
             // Check for end of attributes
-            if self.lexer.starts_with(">")
-                || self.lexer.starts_with("/>")
-                || self.lexer.is_eof()
-            {
+            if self.lexer.starts_with(">") || self.lexer.starts_with("/>") || self.lexer.is_eof() {
                 break;
             }
 
@@ -253,27 +257,27 @@ impl<'a> SfcParser<'a> {
                 self.lexer.skip_whitespace();
 
                 // Read value
-                let (value, value_span) = if self.lexer.starts_with("\"") || self.lexer.starts_with("'")
-                {
-                    let value_start = self.lexer.pos() + 1; // After quote
-                    if let Some((v, _quote)) = self.lexer.read_quoted_string() {
-                        let value_end = self.lexer.pos() - 1; // Before closing quote
+                let (value, value_span) =
+                    if self.lexer.starts_with("\"") || self.lexer.starts_with("'") {
+                        let value_start = self.lexer.pos() + 1; // After quote
+                        if let Some((v, _quote)) = self.lexer.read_quoted_string() {
+                            let value_end = self.lexer.pos() - 1; // Before closing quote
+                            (
+                                v.to_string(),
+                                Span::new(value_start as u32, value_end as u32),
+                            )
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        let value_start = self.lexer.pos();
+                        let v = self.lexer.read_unquoted_value();
+                        let value_end = self.lexer.pos();
                         (
                             v.to_string(),
                             Span::new(value_start as u32, value_end as u32),
                         )
-                    } else {
-                        continue;
-                    }
-                } else {
-                    let value_start = self.lexer.pos();
-                    let v = self.lexer.read_unquoted_value();
-                    let value_end = self.lexer.pos();
-                    (
-                        v.to_string(),
-                        Span::new(value_start as u32, value_end as u32),
-                    )
-                };
+                    };
 
                 let span = self.lexer.span_from(attr_start);
                 attrs.push(BlockAttr::with_value(name, value, span, value_span));

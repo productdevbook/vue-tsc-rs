@@ -121,7 +121,14 @@ impl<'a> SfcLexer<'a> {
         let start = self.pos;
         // Attribute name can include special Vue prefixes
         match self.peek_char() {
-            Some(c) if c.is_ascii_alphabetic() || c == '_' || c == ':' || c == '@' || c == '#' || c == 'v' => {
+            Some(c)
+                if c.is_ascii_alphabetic()
+                    || c == '_'
+                    || c == ':'
+                    || c == '@'
+                    || c == '#'
+                    || c == 'v' =>
+            {
                 self.next_char();
             }
             _ => return None,
@@ -193,7 +200,10 @@ impl<'a> SfcLexer<'a> {
                 if potential.eq_ignore_ascii_case(&pattern) {
                     // Check if followed by > or whitespace
                     let after = self.remaining().chars().nth(pattern.len());
-                    if matches!(after, Some('>') | Some(' ') | Some('\t') | Some('\n') | Some('\r') | None) {
+                    if matches!(
+                        after,
+                        Some('>') | Some(' ') | Some('\t') | Some('\n') | Some('\r') | None
+                    ) {
                         break;
                     }
                 }

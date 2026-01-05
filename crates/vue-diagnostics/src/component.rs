@@ -13,7 +13,10 @@ pub fn check_sfc(sfc: &Sfc, _options: &DiagnosticOptions) -> Vec<Diagnostic> {
 
     // Check script setup content
     if let Some(script_setup) = &sfc.script_setup {
-        diagnostics.extend(check_script_setup(&script_setup.content, script_setup.content_span));
+        diagnostics.extend(check_script_setup(
+            &script_setup.content,
+            script_setup.content_span,
+        ));
     }
 
     // Check for proper component structure
@@ -95,10 +98,7 @@ pub fn check_component_name(name: &str) -> Option<Diagnostic> {
     let first_char = name.chars().next().unwrap();
     if !first_char.is_uppercase() {
         return Some(Diagnostic::warning(
-            format!(
-                "Component name '{}' should be in PascalCase",
-                name
-            ),
+            format!("Component name '{}' should be in PascalCase", name),
             Span::empty(0),
             DiagnosticCode::InvalidComponentName,
         ));
@@ -107,7 +107,10 @@ pub fn check_component_name(name: &str) -> Option<Diagnostic> {
     // Check for reserved names
     if is_reserved_name(name) {
         return Some(Diagnostic::error(
-            format!("'{}' is a reserved name and cannot be used as a component name", name),
+            format!(
+                "'{}' is a reserved name and cannot be used as a component name",
+                name
+            ),
             Span::empty(0),
             DiagnosticCode::InvalidComponentName,
         ));
@@ -121,15 +124,7 @@ fn is_reserved_name(name: &str) -> bool {
     let lower = name.to_lowercase();
     matches!(
         lower.as_str(),
-        "slot"
-            | "component"
-            | "template"
-            | "script"
-            | "style"
-            | "html"
-            | "body"
-            | "head"
-            | "base"
+        "slot" | "component" | "template" | "script" | "style" | "html" | "body" | "head" | "base"
     )
 }
 
@@ -161,6 +156,8 @@ mod tests {
     fn test_multiple_define_props() {
         let content = "defineProps<{}>(); defineProps<{}>();";
         let diagnostics = check_script_setup(content, Span::new(0, content.len() as u32));
-        assert!(diagnostics.iter().any(|d| d.code == DiagnosticCode::DuplicateMacro));
+        assert!(diagnostics
+            .iter()
+            .any(|d| d.code == DiagnosticCode::DuplicateMacro));
     }
 }

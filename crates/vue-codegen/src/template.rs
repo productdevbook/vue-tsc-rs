@@ -31,7 +31,12 @@ pub fn generate_template(builder: &mut CodeBuilder, ast: &TemplateAst, ctx: &mut
 }
 
 /// Generate code for a template node.
-fn generate_node(builder: &mut CodeBuilder, node: &TemplateNode, ctx: &mut CodegenContext, indent: usize) {
+fn generate_node(
+    builder: &mut CodeBuilder,
+    node: &TemplateNode,
+    ctx: &mut CodegenContext,
+    indent: usize,
+) {
     match node {
         TemplateNode::Element(el) => generate_element(builder, el, ctx, indent),
         TemplateNode::Interpolation(interp) => generate_interpolation(builder, interp, ctx, indent),

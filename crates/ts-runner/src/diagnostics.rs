@@ -159,7 +159,6 @@ impl TsSeverity {
     }
 }
 
-
 /// Remapper for converting virtual file positions to original positions.
 pub struct DiagnosticRemapper {
     /// Map from virtual file to original file.
@@ -387,7 +386,8 @@ mod tests {
 
     #[test]
     fn test_parse_tsc_line() {
-        let line = "src/main.ts(10,5): error TS2322: Type 'string' is not assignable to type 'number'.";
+        let line =
+            "src/main.ts(10,5): error TS2322: Type 'string' is not assignable to type 'number'.";
         let diag = parse_tsc_line(line).unwrap();
         assert_eq!(diag.file, Some(PathBuf::from("src/main.ts")));
         assert_eq!(diag.line, Some(10));

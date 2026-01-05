@@ -5,9 +5,9 @@
 //! from templates, scripts, and style bindings.
 
 pub mod context;
+pub mod helpers;
 pub mod script;
 pub mod template;
-pub mod helpers;
 
 use source_map::{CodeBuilder, SourceMap};
 use vue_parser::Sfc;
@@ -202,7 +202,11 @@ fn generate_script_setup(
 }
 
 /// Generate macro declarations (defineProps, defineEmits, etc.).
-fn generate_macro_declarations(builder: &mut CodeBuilder, macros: &MacroInfo, _ctx: &CodegenContext) {
+fn generate_macro_declarations(
+    builder: &mut CodeBuilder,
+    macros: &MacroInfo,
+    _ctx: &CodegenContext,
+) {
     // defineProps
     if let Some(props) = &macros.define_props {
         builder.push_str("const __VLS_props = defineProps");
@@ -411,7 +415,10 @@ fn extract_define_expose(content: &str) -> Option<DefineExposeInfo> {
     if let Ok(re) = regex::Regex::new(r"defineExpose\s*\(\s*(\{[^}]*\})") {
         if let Some(caps) = re.captures(content) {
             return Some(DefineExposeInfo {
-                expression: caps.get(1).map(|m| m.as_str().to_string()).unwrap_or_default(),
+                expression: caps
+                    .get(1)
+                    .map(|m| m.as_str().to_string())
+                    .unwrap_or_default(),
             });
         }
     }

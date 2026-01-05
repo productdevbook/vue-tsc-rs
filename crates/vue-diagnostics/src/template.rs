@@ -1,9 +1,7 @@
 //! Template diagnostics.
 
 use crate::{Diagnostic, DiagnosticCode, DiagnosticOptions};
-use vue_template_compiler::{
-    ElementNode, ForNode, IfNode, TemplateAst, TemplateNode,
-};
+use vue_template_compiler::{ElementNode, ForNode, IfNode, TemplateAst, TemplateNode};
 
 /// Check a template AST for issues.
 pub fn check_template(ast: &TemplateAst, options: &DiagnosticOptions) -> Vec<Diagnostic> {
@@ -39,14 +37,14 @@ fn check_node(node: &TemplateNode, options: &DiagnosticOptions, diagnostics: &mu
 /// Check an element for issues.
 fn check_element(el: &ElementNode, options: &DiagnosticOptions, diagnostics: &mut Vec<Diagnostic>) {
     // Check for unknown components
-    if options.check_unknown_components && el.is_component
-        && !is_known_component(&el.tag, options) {
-            diagnostics.push(Diagnostic::warning(
-                format!("Unknown component: <{}>", el.tag),
-                el.tag_span,
-                DiagnosticCode::UnknownComponent,
-            ));
-        }
+    if options.check_unknown_components && el.is_component && !is_known_component(&el.tag, options)
+    {
+        diagnostics.push(Diagnostic::warning(
+            format!("Unknown component: <{}>", el.tag),
+            el.tag_span,
+            DiagnosticCode::UnknownComponent,
+        ));
+    }
 
     // Check for unknown directives
     if options.check_unknown_directives {
@@ -175,10 +173,7 @@ fn can_use_v_model(tag: &str) -> bool {
     let tag_lower = tag.to_lowercase();
 
     // HTML form elements
-    if matches!(
-        tag_lower.as_str(),
-        "input" | "select" | "textarea"
-    ) {
+    if matches!(tag_lower.as_str(), "input" | "select" | "textarea") {
         return true;
     }
 
@@ -210,20 +205,26 @@ mod tests {
             ..Default::default()
         };
         let diagnostics = check_template(&ast, &options);
-        assert!(diagnostics.iter().any(|d| d.code == DiagnosticCode::MissingKey));
+        assert!(diagnostics
+            .iter()
+            .any(|d| d.code == DiagnosticCode::MissingKey));
     }
 
     #[test]
     fn test_check_v_model_on_div() {
         let ast = parse_template(r#"<div v-model="value">Content</div>"#).unwrap();
         let diagnostics = check_template(&ast, &DiagnosticOptions::default());
-        assert!(diagnostics.iter().any(|d| d.code == DiagnosticCode::InvalidVModel));
+        assert!(diagnostics
+            .iter()
+            .any(|d| d.code == DiagnosticCode::InvalidVModel));
     }
 
     #[test]
     fn test_check_v_model_on_input() {
         let ast = parse_template(r#"<input v-model="value" />"#).unwrap();
         let diagnostics = check_template(&ast, &DiagnosticOptions::default());
-        assert!(diagnostics.iter().all(|d| d.code != DiagnosticCode::InvalidVModel));
+        assert!(diagnostics
+            .iter()
+            .all(|d| d.code != DiagnosticCode::InvalidVModel));
     }
 }

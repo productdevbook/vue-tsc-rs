@@ -69,16 +69,14 @@ impl VirtualFileSystem {
             })?;
         }
 
-        fs::write(path, content).map_err(|e| {
-            TsError::process(format!("Failed to write {}: {}", path.display(), e))
-        })
+        fs::write(path, content)
+            .map_err(|e| TsError::process(format!("Failed to write {}: {}", path.display(), e)))
     }
 
     /// Read a virtual file.
     pub fn read(&self, path: &Path) -> TsResult<String> {
-        fs::read_to_string(path).map_err(|e| {
-            TsError::process(format!("Failed to read {}: {}", path.display(), e))
-        })
+        fs::read_to_string(path)
+            .map_err(|e| TsError::process(format!("Failed to read {}: {}", path.display(), e)))
     }
 
     /// Check if a virtual file exists.
@@ -100,11 +98,7 @@ impl VirtualFileSystem {
     pub fn cleanup(&self) -> TsResult<()> {
         if self.root.exists() {
             fs::remove_dir_all(&self.root).map_err(|e| {
-                TsError::process(format!(
-                    "Failed to cleanup {}: {}",
-                    self.root.display(),
-                    e
-                ))
+                TsError::process(format!("Failed to cleanup {}: {}", self.root.display(), e))
             })?;
         }
         Ok(())
@@ -180,9 +174,8 @@ pub fn generate_virtual_tsconfig(
         config["extends"] = serde_json::Value::String(base.to_string_lossy().to_string());
     }
 
-    serde_json::to_string_pretty(&config).map_err(|e| {
-        TsError::process(format!("Failed to generate tsconfig: {}", e))
-    })
+    serde_json::to_string_pretty(&config)
+        .map_err(|e| TsError::process(format!("Failed to generate tsconfig: {}", e)))
 }
 
 #[cfg(test)]

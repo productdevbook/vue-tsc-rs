@@ -115,7 +115,14 @@ impl ElementNode {
     pub fn is_builtin(&self) -> bool {
         matches!(
             self.tag.as_str(),
-            "template" | "slot" | "component" | "keep-alive" | "transition" | "transition-group" | "teleport" | "suspense"
+            "template"
+                | "slot"
+                | "component"
+                | "keep-alive"
+                | "transition"
+                | "transition-group"
+                | "teleport"
+                | "suspense"
         )
     }
 }
@@ -442,7 +449,14 @@ pub fn get_element_type(tag: &str) -> ElementType {
     // Built-in Vue elements
     if matches!(
         tag,
-        "template" | "slot" | "component" | "keep-alive" | "transition" | "transition-group" | "teleport" | "suspense"
+        "template"
+            | "slot"
+            | "component"
+            | "keep-alive"
+            | "transition"
+            | "transition-group"
+            | "teleport"
+            | "suspense"
     ) {
         return ElementType::Builtin;
     }

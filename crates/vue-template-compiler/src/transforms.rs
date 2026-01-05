@@ -91,10 +91,9 @@ fn transform_element(el: &mut ElementNode, ctx: &mut TransformContext) {
 
     // Track directive usage
     for dir in &el.directives {
-        if !is_builtin_directive(&dir.name)
-            && !ctx.directives.contains(&dir.name) {
-                ctx.directives.push(dir.name.clone());
-            }
+        if !is_builtin_directive(&dir.name) && !ctx.directives.contains(&dir.name) {
+            ctx.directives.push(dir.name.clone());
+        }
     }
 
     // Process children
@@ -300,7 +299,11 @@ pub fn camelize(s: &str) -> String {
 pub fn pascalize(s: &str) -> String {
     let camel = camelize(s);
     if let Some(first) = camel.chars().next() {
-        format!("{}{}", first.to_ascii_uppercase(), &camel[first.len_utf8()..])
+        format!(
+            "{}{}",
+            first.to_ascii_uppercase(),
+            &camel[first.len_utf8()..]
+        )
     } else {
         camel
     }
@@ -335,10 +338,7 @@ mod tests {
 
     #[test]
     fn test_extract_binding_names_destructure() {
-        assert_eq!(
-            extract_binding_names("{ a, b, c }"),
-            vec!["a", "b", "c"]
-        );
+        assert_eq!(extract_binding_names("{ a, b, c }"), vec!["a", "b", "c"]);
     }
 
     #[test]

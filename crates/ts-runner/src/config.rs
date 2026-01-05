@@ -34,16 +34,14 @@ pub struct TsConfig {
 impl TsConfig {
     /// Load tsconfig.json from a path.
     pub fn load(path: &Path) -> TsResult<Self> {
-        let content = std::fs::read_to_string(path).map_err(|e| {
-            TsError::config(format!("Failed to read {}: {}", path.display(), e))
-        })?;
+        let content = std::fs::read_to_string(path)
+            .map_err(|e| TsError::config(format!("Failed to read {}: {}", path.display(), e)))?;
 
         // Remove comments (simple implementation)
         let content = remove_json_comments(&content);
 
-        serde_json::from_str(&content).map_err(|e| {
-            TsError::config(format!("Failed to parse {}: {}", path.display(), e))
-        })
+        serde_json::from_str(&content)
+            .map_err(|e| TsError::config(format!("Failed to parse {}: {}", path.display(), e)))
     }
 
     /// Find tsconfig.json in a directory or its parents.
@@ -90,7 +88,8 @@ impl TsConfig {
             self.compiler_options.module = other.compiler_options.module.clone();
         }
         if self.compiler_options.module_resolution.is_none() {
-            self.compiler_options.module_resolution = other.compiler_options.module_resolution.clone();
+            self.compiler_options.module_resolution =
+                other.compiler_options.module_resolution.clone();
         }
         if self.compiler_options.strict.is_none() {
             self.compiler_options.strict = other.compiler_options.strict;

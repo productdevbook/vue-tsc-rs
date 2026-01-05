@@ -208,11 +208,16 @@ impl Orchestrator {
 
     /// Run Vue-specific diagnostics on files.
     #[allow(clippy::type_complexity)]
-    fn run_vue_diagnostics(&self, files: &[PathBuf]) -> Result<Vec<(PathBuf, String, Vec<Diagnostic>)>> {
-        let results: Arc<Mutex<Vec<(PathBuf, String, Vec<Diagnostic>)>>> = Arc::new(Mutex::new(Vec::new()));
+    fn run_vue_diagnostics(
+        &self,
+        files: &[PathBuf],
+    ) -> Result<Vec<(PathBuf, String, Vec<Diagnostic>)>> {
+        let results: Arc<Mutex<Vec<(PathBuf, String, Vec<Diagnostic>)>>> =
+            Arc::new(Mutex::new(Vec::new()));
 
-        files.par_iter().for_each(|file| {
-            match self.check_vue_file(file) {
+        files
+            .par_iter()
+            .for_each(|file| match self.check_vue_file(file) {
                 Ok((source, diagnostics)) => {
                     if !diagnostics.is_empty() {
                         let mut results = results.lock().unwrap();
@@ -222,8 +227,7 @@ impl Orchestrator {
                 Err(e) => {
                     eprintln!("Error checking {}: {}", file.display(), e);
                 }
-            }
-        });
+            });
 
         Ok(Arc::try_unwrap(results)
             .unwrap_or_else(|_| panic!("Arc still has multiple references"))
@@ -278,7 +282,8 @@ impl Orchestrator {
         // Output Vue diagnostics
         for (file, source, diagnostics) in vue_diagnostics {
             for diag in diagnostics {
-                self.formatter.print_vue_diagnostic(file, diag, Some(source));
+                self.formatter
+                    .print_vue_diagnostic(file, diag, Some(source));
                 match diag.severity {
                     Severity::Error => error_count += 1,
                     Severity::Warning => warning_count += 1,
@@ -290,7 +295,10 @@ impl Orchestrator {
         // Output TypeScript diagnostics
         for diag in &ts_diagnostics.diagnostics {
             // Try to read source for context
-            let source = diag.file.as_ref().and_then(|f| std::fs::read_to_string(f).ok());
+            let source = diag
+                .file
+                .as_ref()
+                .and_then(|f| std::fs::read_to_string(f).ok());
             self.formatter.print_ts_diagnostic(diag, source.as_deref());
         }
         error_count += ts_diagnostics.error_count;

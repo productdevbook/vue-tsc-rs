@@ -51,9 +51,10 @@ impl TsRunner {
             None
         };
 
-        let temp_dir = options.temp_dir.clone().unwrap_or_else(|| {
-            std::env::temp_dir().join("vue-tsc-rs")
-        });
+        let temp_dir = options
+            .temp_dir
+            .clone()
+            .unwrap_or_else(|| std::env::temp_dir().join("vue-tsc-rs"));
 
         Ok(Self {
             workspace: workspace.to_path_buf(),
@@ -189,9 +190,10 @@ impl TsRunner {
         cmd.stdout(Stdio::piped());
         cmd.stderr(Stdio::piped());
 
-        let output = cmd.output().await.map_err(|e| {
-            TsError::process(format!("Failed to run tsc: {}", e))
-        })?;
+        let output = cmd
+            .output()
+            .await
+            .map_err(|e| TsError::process(format!("Failed to run tsc: {}", e)))?;
 
         // Combine stdout and stderr
         let stdout = String::from_utf8_lossy(&output.stdout);
@@ -219,9 +221,10 @@ impl TsRunner {
         cmd.stdout(Stdio::piped());
         cmd.stderr(Stdio::piped());
 
-        let output = cmd.output().await.map_err(|e| {
-            TsError::process(format!("Failed to run tsgo: {}", e))
-        })?;
+        let output = cmd
+            .output()
+            .await
+            .map_err(|e| TsError::process(format!("Failed to run tsgo: {}", e)))?;
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         let stderr = String::from_utf8_lossy(&output.stderr);
@@ -244,7 +247,9 @@ impl TsRunner {
 
         // Try global tsc
         which::which("tsc").map_err(|_| {
-            TsError::process("TypeScript compiler (tsc) not found. Install with: npm install -g typescript")
+            TsError::process(
+                "TypeScript compiler (tsc) not found. Install with: npm install -g typescript",
+            )
         })
     }
 

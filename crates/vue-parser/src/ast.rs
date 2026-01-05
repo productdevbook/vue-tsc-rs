@@ -250,8 +250,7 @@ pub struct Comment {
 }
 
 /// Script language variants.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum ScriptLang {
     /// JavaScript
     #[default]
@@ -296,4 +295,3 @@ impl ScriptLang {
         matches!(self, Self::Jsx | Self::Tsx)
     }
 }
-

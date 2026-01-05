@@ -2,8 +2,8 @@
 
 use crate::ast::*;
 use crate::error::{CompileError, CompileErrorCode, CompileResult};
-use source_map::Span;
 use smol_str::SmolStr;
+use source_map::Span;
 
 /// Parse a Vue template into an AST.
 pub fn parse_template(source: &str) -> CompileResult<TemplateAst> {
@@ -279,7 +279,10 @@ impl<'a> TemplateParser<'a> {
                 let for_node = self.parse_v_for_expression(&value.content, value.span)?;
                 let mut for_node = for_node;
                 // Check for :key before moving props
-                let key_attr = props.iter().find(|p| p.name == "key").map(|p| p.value.clone());
+                let key_attr = props
+                    .iter()
+                    .find(|p| p.name == "key")
+                    .map(|p| p.value.clone());
 
                 for_node.children = vec![self.create_element_node(
                     tag.into(),
@@ -416,7 +419,12 @@ impl<'a> TemplateParser<'a> {
     #[allow(clippy::type_complexity)]
     fn parse_attributes(
         &mut self,
-    ) -> CompileResult<(Vec<Attribute>, Vec<Directive>, Vec<Prop>, Vec<EventListener>)> {
+    ) -> CompileResult<(
+        Vec<Attribute>,
+        Vec<Directive>,
+        Vec<Prop>,
+        Vec<EventListener>,
+    )> {
         let mut attrs = Vec::new();
         let mut directives = Vec::new();
         let mut props = Vec::new();
@@ -468,7 +476,10 @@ impl<'a> TemplateParser<'a> {
                 // Directive: v-name:arg.mod="value"
                 let directive = self.parse_directive(directive_name, value, span)?;
                 directives.push(directive);
-            } else if let Some(prop_name) = name.strip_prefix(':').or_else(|| name.strip_prefix("v-bind:")) {
+            } else if let Some(prop_name) = name
+                .strip_prefix(':')
+                .or_else(|| name.strip_prefix("v-bind:"))
+            {
                 // Binding: :prop or v-bind:prop
                 let (prop_name, is_dynamic) = parse_prop_name(prop_name);
                 if let Some((val, val_span)) = value {
@@ -479,7 +490,10 @@ impl<'a> TemplateParser<'a> {
                         span,
                     });
                 }
-            } else if let Some(event_name) = name.strip_prefix('@').or_else(|| name.strip_prefix("v-on:")) {
+            } else if let Some(event_name) = name
+                .strip_prefix('@')
+                .or_else(|| name.strip_prefix("v-on:"))
+            {
                 // Event: @event or v-on:event
                 let (event_name, modifiers) = parse_event_with_modifiers(event_name);
                 let is_dynamic = event_name.starts_with('[') && event_name.ends_with(']');
@@ -753,7 +767,8 @@ mod tests {
 
     #[test]
     fn test_parse_v_for() {
-        let ast = parse_template(r#"<div v-for="item in items" :key="item.id">{{ item }}</div>"#).unwrap();
+        let ast = parse_template(r#"<div v-for="item in items" :key="item.id">{{ item }}</div>"#)
+            .unwrap();
         assert_eq!(ast.children.len(), 1);
         match &ast.children[0] {
             TemplateNode::For(node) => {
