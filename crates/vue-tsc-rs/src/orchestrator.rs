@@ -207,6 +207,7 @@ impl Orchestrator {
     }
 
     /// Run Vue-specific diagnostics on files.
+    #[allow(clippy::type_complexity)]
     fn run_vue_diagnostics(&self, files: &[PathBuf]) -> Result<Vec<(PathBuf, String, Vec<Diagnostic>)>> {
         let results: Arc<Mutex<Vec<(PathBuf, String, Vec<Diagnostic>)>>> = Arc::new(Mutex::new(Vec::new()));
 

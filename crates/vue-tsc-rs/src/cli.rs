@@ -82,6 +82,7 @@ impl Args {
     }
 
     /// Check if output should be verbose.
+    #[allow(dead_code)]
     pub fn is_verbose(&self) -> bool {
         self.verbose || matches!(self.output, OutputFormat::HumanVerbose)
     }

@@ -134,8 +134,10 @@ pub struct RelatedInfo {
 /// Diagnostic severity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum TsSeverity {
     /// Error.
+    #[default]
     Error,
     /// Warning.
     Warning,
@@ -157,11 +159,6 @@ impl TsSeverity {
     }
 }
 
-impl Default for TsSeverity {
-    fn default() -> Self {
-        Self::Error
-    }
-}
 
 /// Remapper for converting virtual file positions to original positions.
 pub struct DiagnosticRemapper {

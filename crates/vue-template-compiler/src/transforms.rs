@@ -91,11 +91,10 @@ fn transform_element(el: &mut ElementNode, ctx: &mut TransformContext) {
 
     // Track directive usage
     for dir in &el.directives {
-        if !is_builtin_directive(&dir.name) {
-            if !ctx.directives.contains(&dir.name) {
+        if !is_builtin_directive(&dir.name)
+            && !ctx.directives.contains(&dir.name) {
                 ctx.directives.push(dir.name.clone());
             }
-        }
     }
 
     // Process children
@@ -227,22 +226,22 @@ fn extract_binding_names(pattern: &str) -> Vec<&str> {
         let inner = &pattern[1..pattern.len() - 1];
         return inner
             .split(',')
-            .filter_map(|part| {
+            .map(|part| {
                 let part = part.trim();
                 // Handle renaming: key: value
                 if let Some(colon_pos) = part.find(':') {
                     let value_part = part[colon_pos + 1..].trim();
                     // Handle default: value = default
                     if let Some(eq_pos) = value_part.find('=') {
-                        Some(value_part[..eq_pos].trim())
+                        value_part[..eq_pos].trim()
                     } else {
-                        Some(value_part)
+                        value_part
                     }
                 } else if let Some(eq_pos) = part.find('=') {
                     // Handle default: name = default
-                    Some(part[..eq_pos].trim())
+                    part[..eq_pos].trim()
                 } else {
-                    Some(part)
+                    part
                 }
             })
             .filter(|s| !s.is_empty() && !s.starts_with("..."))

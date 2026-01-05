@@ -39,15 +39,14 @@ fn check_node(node: &TemplateNode, options: &DiagnosticOptions, diagnostics: &mu
 /// Check an element for issues.
 fn check_element(el: &ElementNode, options: &DiagnosticOptions, diagnostics: &mut Vec<Diagnostic>) {
     // Check for unknown components
-    if options.check_unknown_components && el.is_component {
-        if !is_known_component(&el.tag, options) {
+    if options.check_unknown_components && el.is_component
+        && !is_known_component(&el.tag, options) {
             diagnostics.push(Diagnostic::warning(
                 format!("Unknown component: <{}>", el.tag),
                 el.tag_span,
                 DiagnosticCode::UnknownComponent,
             ));
         }
-    }
 
     // Check for unknown directives
     if options.check_unknown_directives {
@@ -184,7 +183,7 @@ fn can_use_v_model(tag: &str) -> bool {
     }
 
     // Components (assumed to support v-model)
-    if tag.chars().next().map_or(false, |c| c.is_uppercase()) || tag.contains('-') {
+    if tag.chars().next().is_some_and(|c| c.is_uppercase()) || tag.contains('-') {
         return true;
     }
 

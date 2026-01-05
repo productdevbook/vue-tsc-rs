@@ -12,6 +12,7 @@ pub fn parse_template(source: &str) -> CompileResult<TemplateAst> {
 }
 
 /// Parser for Vue templates.
+#[allow(dead_code)]
 struct TemplateParser<'a> {
     source: &'a str,
     pos: usize,
@@ -121,7 +122,7 @@ impl<'a> TemplateParser<'a> {
                     if remaining
                         .split(|c: char| c.is_whitespace() || c == '>')
                         .next()
-                        .map_or(false, |t| t.eq_ignore_ascii_case(tag))
+                        .is_some_and(|t| t.eq_ignore_ascii_case(tag))
                     {
                         break;
                     }
@@ -382,6 +383,7 @@ impl<'a> TemplateParser<'a> {
     }
 
     /// Create an element node.
+    #[allow(clippy::too_many_arguments)]
     fn create_element_node(
         &self,
         tag: SmolStr,
@@ -411,6 +413,7 @@ impl<'a> TemplateParser<'a> {
     }
 
     /// Parse attributes, directives, props, and events.
+    #[allow(clippy::type_complexity)]
     fn parse_attributes(
         &mut self,
     ) -> CompileResult<(Vec<Attribute>, Vec<Directive>, Vec<Prop>, Vec<EventListener>)> {
@@ -461,17 +464,12 @@ impl<'a> TemplateParser<'a> {
             let span = Span::new(attr_start as u32, self.pos as u32);
 
             // Parse based on prefix
-            if name.starts_with("v-") {
+            if let Some(directive_name) = name.strip_prefix("v-") {
                 // Directive: v-name:arg.mod="value"
-                let directive = self.parse_directive(&name[2..], value, span)?;
+                let directive = self.parse_directive(directive_name, value, span)?;
                 directives.push(directive);
-            } else if name.starts_with(':') || name.starts_with("v-bind:") {
+            } else if let Some(prop_name) = name.strip_prefix(':').or_else(|| name.strip_prefix("v-bind:")) {
                 // Binding: :prop or v-bind:prop
-                let prop_name = if name.starts_with(':') {
-                    &name[1..]
-                } else {
-                    &name[7..]
-                };
                 let (prop_name, is_dynamic) = parse_prop_name(prop_name);
                 if let Some((val, val_span)) = value {
                     props.push(Prop {
@@ -481,13 +479,8 @@ impl<'a> TemplateParser<'a> {
                         span,
                     });
                 }
-            } else if name.starts_with('@') || name.starts_with("v-on:") {
+            } else if let Some(event_name) = name.strip_prefix('@').or_else(|| name.strip_prefix("v-on:")) {
                 // Event: @event or v-on:event
-                let event_name = if name.starts_with('@') {
-                    &name[1..]
-                } else {
-                    &name[5..]
-                };
                 let (event_name, modifiers) = parse_event_with_modifiers(event_name);
                 let is_dynamic = event_name.starts_with('[') && event_name.ends_with(']');
                 let clean_name = if is_dynamic {
@@ -504,9 +497,8 @@ impl<'a> TemplateParser<'a> {
                         span,
                     });
                 }
-            } else if name.starts_with('#') {
+            } else if let Some(slot_name) = name.strip_prefix('#') {
                 // Slot shorthand: #name or #[dynamic]
-                let slot_name = &name[1..];
                 let directive = Directive {
                     name: "slot".into(),
                     arg: Some(if slot_name.starts_with('[') && slot_name.ends_with(']') {

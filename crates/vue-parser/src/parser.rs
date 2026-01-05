@@ -179,12 +179,10 @@ impl<'a> SfcParser<'a> {
                             generic_span,
                         });
                     }
+                } else if sfc.script.is_some() {
+                    self.errors.push(ParseError::duplicate_block("script", span));
                 } else {
-                    if sfc.script.is_some() {
-                        self.errors.push(ParseError::duplicate_block("script", span));
-                    } else {
-                        sfc.script = Some(ScriptBlock { block, lang, src });
-                    }
+                    sfc.script = Some(ScriptBlock { block, lang, src });
                 }
             }
             "style" => {

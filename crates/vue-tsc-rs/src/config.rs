@@ -8,6 +8,7 @@ use vue_diagnostics::DiagnosticOptions;
 
 /// Configuration for vue-tsc-rs.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct Config {
     /// Workspace root directory.
     pub workspace: PathBuf,
@@ -57,13 +58,7 @@ impl Config {
         // Get extensions
         let extensions = tsconfig
             .as_ref()
-            .map(|c| {
-                c.vue_compiler_options
-                    .extensions
-                    .iter()
-                    .map(|s| s.clone())
-                    .collect()
-            })
+            .map(|c| c.vue_compiler_options.extensions.to_vec())
             .unwrap_or_else(|| vec![".vue".to_string()]);
 
         // Build ignore patterns
@@ -85,6 +80,7 @@ impl Config {
     }
 
     /// Check if a file should be processed.
+    #[allow(dead_code)]
     pub fn should_process(&self, path: &Path) -> bool {
         // Check extension
         let ext = path

@@ -437,14 +437,14 @@ fn extract_binding_names(pattern: &str) -> Vec<&str> {
         let inner = &pattern[1..pattern.len() - 1];
         return inner
             .split(',')
-            .filter_map(|part| {
+            .map(|part| {
                 let part = part.trim();
                 if let Some(colon_pos) = part.find(':') {
-                    Some(part[colon_pos + 1..].trim())
+                    part[colon_pos + 1..].trim()
                 } else if let Some(eq_pos) = part.find('=') {
-                    Some(part[..eq_pos].trim())
+                    part[..eq_pos].trim()
                 } else {
-                    Some(part)
+                    part
                 }
             })
             .filter(|s| !s.is_empty())

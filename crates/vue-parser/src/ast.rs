@@ -251,8 +251,10 @@ pub struct Comment {
 
 /// Script language variants.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default)]
 pub enum ScriptLang {
     /// JavaScript
+    #[default]
     Js,
     /// JavaScript with JSX
     Jsx,
@@ -264,7 +266,7 @@ pub enum ScriptLang {
 
 impl ScriptLang {
     /// Parse from a language string.
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn parse(s: &str) -> Option<Self> {
         match s.to_lowercase().as_str() {
             "js" | "javascript" => Some(Self::Js),
             "jsx" => Some(Self::Jsx),
@@ -295,8 +297,3 @@ impl ScriptLang {
     }
 }
 
-impl Default for ScriptLang {
-    fn default() -> Self {
-        Self::Js
-    }
-}

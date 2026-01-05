@@ -253,7 +253,7 @@ fn remove_json_comments(json: &str) -> String {
                 Some('/') => {
                     // Single-line comment
                     chars.next();
-                    while let Some(nc) = chars.next() {
+                    for nc in chars.by_ref() {
                         if nc == '\n' {
                             result.push('\n');
                             break;

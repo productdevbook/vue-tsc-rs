@@ -448,7 +448,7 @@ pub fn get_element_type(tag: &str) -> ElementType {
     }
 
     // Components are PascalCase or have dashes
-    if tag.chars().next().map_or(false, |c| c.is_uppercase()) || tag.contains('-') {
+    if tag.chars().next().is_some_and(|c| c.is_uppercase()) || tag.contains('-') {
         return ElementType::Component;
     }
 
