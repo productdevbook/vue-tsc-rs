@@ -5,12 +5,22 @@ A high-performance Vue type checker written in Rust. Drop-in replacement for `vu
 ## Features
 
 - **Fast**: 10-100x faster than vue-tsc thanks to Rust's performance
-- **Compatible**: Supports Vue 3.x Single File Components
-- **Complete**: Full support for script setup, generics, macros, and template type checking
+- **Compatible**: Full Vue 3.x Single File Component support
+- **Complete**: Script setup, generics, macros, and template type checking
 - **Watch Mode**: Incremental checking with file watching
-- **Multiple Output Formats**: Human-readable, JSON, and machine-parseable output
+- **Multiple Outputs**: Human-readable, JSON, and machine-parseable formats
 
 ## Installation
+
+### npm
+
+```bash
+npm install -D vue-tsc-rs
+```
+
+```bash
+pnpm add -D vue-tsc-rs
+```
 
 ### From Source
 
@@ -46,6 +56,17 @@ vue-tsc-rs --output json
 vue-tsc-rs --timings
 ```
 
+### package.json
+
+```json
+{
+  "scripts": {
+    "typecheck": "vue-tsc-rs",
+    "typecheck:watch": "vue-tsc-rs --watch"
+  }
+}
+```
+
 ### CLI Options
 
 | Option | Description |
@@ -53,11 +74,13 @@ vue-tsc-rs --timings
 | `-w, --workspace <DIR>` | Workspace directory to check |
 | `-p, --project <FILE>` | Path to tsconfig.json |
 | `--watch` | Run in watch mode |
-| `--output <FORMAT>` | Output format: human, human-verbose, json, machine |
+| `--output <FORMAT>` | Output format: `human`, `human-verbose`, `json`, `machine` |
 | `--fail-on-warning` | Exit with error on warnings |
-| `--emit-ts` | Emit generated TypeScript files (debugging) |
+| `--emit-ts` | Emit generated TypeScript files (for debugging) |
 | `--timings` | Show timing information |
+| `--max-errors <N>` | Maximum number of errors to show |
 | `--skip-typecheck` | Skip TypeScript, only run Vue diagnostics |
+| `--ignore <PATTERN>` | Ignore patterns (glob) |
 | `--use-tsgo` | Use tsgo instead of tsc |
 | `-v, --verbose` | Verbose output |
 
@@ -88,29 +111,23 @@ defineProps<{
 
 ```vue
 <script setup lang="ts">
-// Props
 const props = defineProps<{
   message: string
   count?: number
 }>()
 
-// Emits
 const emit = defineEmits<{
-  (e: 'update', value: string): void
-  (e: 'delete'): void
+  update: [value: string]
+  delete: []
 }>()
 
-// Slots
 const slots = defineSlots<{
   default(props: { item: string }): any
   header(): any
 }>()
 
-// Model
 const modelValue = defineModel<string>()
-const count = defineModel<number>('count')
 
-// Expose
 defineExpose({
   publicMethod() {}
 })
@@ -121,18 +138,12 @@ defineExpose({
 
 ```vue
 <template>
-  <!-- Props type checking -->
-  <MyComponent :value="typedValue" />
+  <MyComponent :value="typedValue" @update="handleUpdate" />
 
-  <!-- Event handler type checking -->
-  <button @click="handleClick">Click</button>
-
-  <!-- v-for with proper typing -->
   <div v-for="item in items" :key="item.id">
     {{ item.name }}
   </div>
 
-  <!-- Slot props type checking -->
   <MyComponent>
     <template #default="{ item }">
       {{ item.name }}
@@ -155,6 +166,7 @@ vue-tsc-rs/
 │   ├── vue-diagnostics/         # Vue-specific diagnostics
 │   ├── ts-runner/               # TypeScript integration
 │   └── vue-tsc-rs/              # CLI application
+└── npm/                         # npm package
 ```
 
 ### Processing Pipeline
@@ -163,32 +175,16 @@ vue-tsc-rs/
 .vue file
     ↓
 [1] Parse SFC (vue-parser)
-    - Extract template, script, scriptSetup, style blocks
-    - Parse attributes and content
     ↓
 [2] Vue Diagnostics (vue-diagnostics)
-    - Component naming conventions
-    - Macro usage validation
-    - Template validation
     ↓
 [3] Compile Template (vue-template-compiler)
-    - Parse template to AST
-    - Handle directives (v-if, v-for, v-model, etc.)
-    - Track scope variables
     ↓
 [4] Generate TypeScript (vue-codegen)
-    - Transform Vue SFC to virtual TypeScript
-    - Generate type-safe template checking code
-    - Preserve source mappings
     ↓
 [5] TypeScript Check (ts-runner)
-    - Run tsc or tsgo on virtual files
-    - Parse diagnostics
-    - Remap positions to original .vue files
     ↓
 [6] Output (vue-tsc-rs)
-    - Format and display diagnostics
-    - Exit with appropriate code
 ```
 
 ## Configuration
@@ -220,7 +216,6 @@ vue-tsc-rs/
 | `strictTemplates` | boolean | Enable strict template checking |
 | `checkUnknownComponents` | boolean | Warn on unknown components |
 | `checkUnknownDirectives` | boolean | Warn on unknown directives |
-| `extensions` | string[] | File extensions to process |
 
 ## Diagnostics
 
@@ -234,33 +229,40 @@ vue-tsc-rs/
 | `invalid-v-model` | v-model on invalid element |
 | `missing-key` | Missing :key in v-for |
 | `duplicate-macro` | Multiple defineProps/defineEmits |
-| `invalid-component-name` | Component name doesn't follow conventions |
 
 ### TypeScript Diagnostics
 
-All standard TypeScript errors are reported with original positions mapped back to .vue files.
+All standard TypeScript errors are reported with positions mapped back to `.vue` files.
 
 ## Performance
 
-Compared to vue-tsc on a medium-sized Vue project (100 components):
+| Tool | Cold Start | Incremental |
+|------|------------|-------------|
+| vue-tsc | ~15s | ~5s |
+| vue-tsc-rs | ~1.5s | ~0.5s |
 
-| Tool | Time |
-|------|------|
-| vue-tsc | ~15s |
-| vue-tsc-rs | ~1.5s |
+*Benchmarked on a medium-sized Vue project (100 components)*
 
-Performance improvements come from:
+Performance improvements:
 - Parallel file processing with Rayon
 - Efficient Rust data structures
 - Minimal allocations
 - Optimized parsing
+
+## Platforms
+
+| Platform | Architecture |
+|----------|--------------|
+| macOS | arm64, x64 |
+| Linux | arm64, x64 |
+| Windows | arm64, x64 |
 
 ## Development
 
 ### Requirements
 
 - Rust 1.75+
-- Node.js 18+ (for TypeScript integration)
+- Node.js 24+
 
 ### Building
 
@@ -271,7 +273,7 @@ cargo build --release
 ### Testing
 
 ```bash
-cargo test
+cargo test --workspace
 ```
 
 ### Linting
@@ -289,8 +291,7 @@ Contributions are welcome! Please read our contributing guidelines before submit
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+## Related
 
-- [vuejs/language-tools](https://github.com/vuejs/language-tools) - Vue's official language tooling
-- [svelte-check-rs](https://github.com/pheuter/svelte-check-rs) - Inspiration for architecture
-- [SWC](https://swc.rs/) - Fast JavaScript/TypeScript tooling in Rust
+- [vue-tsc](https://github.com/vuejs/language-tools) - Official Vue type checker
+- [tsgo](https://github.com/nicolo-ribaudo/tsgo) - Fast TypeScript type checker
