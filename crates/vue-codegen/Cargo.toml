@@ -1,0 +1,27 @@
+[package]
+name = "vue-codegen"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Vue to TypeScript code generation for type-checking"
+
+[dependencies]
+source-map.workspace = true
+vue-parser.workspace = true
+vue-template-compiler.workspace = true
+smol_str.workspace = true
+thiserror.workspace = true
+indexmap.workspace = true
+rustc-hash.workspace = true
+regex.workspace = true
+swc_ecma_parser.workspace = true
+swc_ecma_ast.workspace = true
+swc_common.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+pretty_assertions.workspace = true
+
+[features]
+default = []

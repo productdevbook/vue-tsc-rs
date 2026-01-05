@@ -1,0 +1,49 @@
+{
+  "name": "vue-tsc-rs",
+  "version": "0.1.0",
+  "description": "High-performance Vue type checker written in Rust",
+  "type": "module",
+  "keywords": [
+    "vue",
+    "typescript",
+    "type-check",
+    "vue-tsc",
+    "rust"
+  ],
+  "homepage": "https://github.com/productdevbook/vue-tsc-rs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/productdevbook/vue-tsc-rs.git"
+  },
+  "license": "MIT",
+  "author": "vue-tsc-rs contributors",
+  "exports": {
+    ".": {
+      "import": "./index.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "bin": {
+    "vue-tsc-rs": "bin/vue-tsc-rs"
+  },
+  "files": [
+    "bin",
+    "install.js",
+    "index.js",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "optionalDependencies": {
+    "@vue-tsc-rs/darwin-arm64": "0.1.0",
+    "@vue-tsc-rs/darwin-x64": "0.1.0",
+    "@vue-tsc-rs/linux-arm64": "0.1.0",
+    "@vue-tsc-rs/linux-x64": "0.1.0",
+    "@vue-tsc-rs/win32-arm64": "0.1.0",
+    "@vue-tsc-rs/win32-x64": "0.1.0"
+  }
+}

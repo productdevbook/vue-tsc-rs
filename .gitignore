@@ -1,0 +1,56 @@
+# Rust
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Test artifacts
+*.snap.new
+/test-fixtures/temp/
+
+# Debug
+*.pdb
+*.dSYM/
+
+# Coverage
+*.profraw
+*.profdata
+/coverage/
+/tarpaulin-report.html
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Node (for TypeScript integration)
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Generated files
+/dist/
+/out/
+/npm/dist/
+/npm/bin/
+
+# Documentation build
+/docs/_build/
+
+# Environment
+.env
+.env.local

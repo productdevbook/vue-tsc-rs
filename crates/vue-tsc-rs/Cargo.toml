@@ -1,0 +1,44 @@
+[package]
+name = "vue-tsc-rs"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "High-performance Vue type-checker and linter"
+repository.workspace = true
+homepage.workspace = true
+
+[[bin]]
+name = "vue-tsc-rs"
+path = "src/main.rs"
+
+[dependencies]
+source-map.workspace = true
+vue-parser.workspace = true
+vue-template-compiler.workspace = true
+vue-codegen.workspace = true
+vue-diagnostics.workspace = true
+ts-runner.workspace = true
+
+clap.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+miette.workspace = true
+walkdir.workspace = true
+globset.workspace = true
+notify.workspace = true
+camino.workspace = true
+rayon.workspace = true
+swc_ecma_parser.workspace = true
+swc_ecma_ast.workspace = true
+swc_common.workspace = true
+
+[dev-dependencies]
+insta.workspace = true
+pretty_assertions.workspace = true
+text-size.workspace = true
+serial_test = "3.2"
+serde.workspace = true
+serde_json.workspace = true

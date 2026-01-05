@@ -1,0 +1,28 @@
+[package]
+name = "ts-runner"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "TypeScript compiler process runner for type-checking"
+
+[dependencies]
+source-map.workspace = true
+vue-parser.workspace = true
+vue-codegen.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+camino.workspace = true
+which.workspace = true
+shellexpand.workspace = true
+tempfile.workspace = true
+dirs.workspace = true
+walkdir.workspace = true
+swc_common.workspace = true
+swc_ecma_parser.workspace = true
+swc_ecma_ast.workspace = true
+
+[dev-dependencies]
+pretty_assertions.workspace = true
