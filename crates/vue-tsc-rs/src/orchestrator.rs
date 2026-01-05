@@ -207,15 +207,15 @@ impl Orchestrator {
     }
 
     /// Run Vue-specific diagnostics on files.
-    fn run_vue_diagnostics(&self, files: &[PathBuf]) -> Result<Vec<(PathBuf, Vec<Diagnostic>)>> {
-        let results: Arc<Mutex<Vec<(PathBuf, Vec<Diagnostic>)>>> = Arc::new(Mutex::new(Vec::new()));
+    fn run_vue_diagnostics(&self, files: &[PathBuf]) -> Result<Vec<(PathBuf, String, Vec<Diagnostic>)>> {
+        let results: Arc<Mutex<Vec<(PathBuf, String, Vec<Diagnostic>)>>> = Arc::new(Mutex::new(Vec::new()));
 
         files.par_iter().for_each(|file| {
             match self.check_vue_file(file) {
-                Ok(diagnostics) => {
+                Ok((source, diagnostics)) => {
                     if !diagnostics.is_empty() {
                         let mut results = results.lock().unwrap();
-                        results.push((file.clone(), diagnostics));
+                        results.push((file.clone(), source, diagnostics));
                     }
                 }
                 Err(e) => {
@@ -231,7 +231,7 @@ impl Orchestrator {
     }
 
     /// Check a single Vue file.
-    fn check_vue_file(&self, path: &Path) -> Result<Vec<Diagnostic>> {
+    fn check_vue_file(&self, path: &Path) -> Result<(String, Vec<Diagnostic>)> {
         let content = std::fs::read_to_string(path)
             .into_diagnostic()
             .wrap_err_with(|| format!("Failed to read {}", path.display()))?;
@@ -241,7 +241,7 @@ impl Orchestrator {
 
         let diagnostics = diagnose_sfc(&sfc, &self.config.diagnostic_options);
 
-        Ok(diagnostics)
+        Ok((content, diagnostics))
     }
 
     /// Run TypeScript type checking.
@@ -268,16 +268,16 @@ impl Orchestrator {
     fn output_results(
         &self,
         _files: &[PathBuf],
-        vue_diagnostics: &[(PathBuf, Vec<Diagnostic>)],
+        vue_diagnostics: &[(PathBuf, String, Vec<Diagnostic>)],
         ts_diagnostics: &TsDiagnostics,
     ) -> (usize, usize) {
         let mut error_count = 0;
         let mut warning_count = 0;
 
         // Output Vue diagnostics
-        for (file, diagnostics) in vue_diagnostics {
+        for (file, source, diagnostics) in vue_diagnostics {
             for diag in diagnostics {
-                self.formatter.print_vue_diagnostic(file, diag);
+                self.formatter.print_vue_diagnostic(file, diag, Some(source));
                 match diag.severity {
                     Severity::Error => error_count += 1,
                     Severity::Warning => warning_count += 1,
@@ -288,7 +288,9 @@ impl Orchestrator {
 
         // Output TypeScript diagnostics
         for diag in &ts_diagnostics.diagnostics {
-            self.formatter.print_ts_diagnostic(diag);
+            // Try to read source for context
+            let source = diag.file.as_ref().and_then(|f| std::fs::read_to_string(f).ok());
+            self.formatter.print_ts_diagnostic(diag, source.as_deref());
         }
         error_count += ts_diagnostics.error_count;
         warning_count += ts_diagnostics.warning_count;
